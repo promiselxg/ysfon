@@ -1,4 +1,8 @@
-import { suspendUserAccount, updateUserData } from "@/actions/user/userActions";
+import {
+  deleteUserAccount,
+  suspendUserAccount,
+  updateUserData,
+} from "@/actions/user/userActions";
 import { verifyUserRoles } from "@/lib/middleware/verifyRole";
 import { verifyToken } from "@/lib/middleware/verifyToken";
 import ROLES from "@/lib/utils/roles";
@@ -10,4 +14,12 @@ export const GET = async (req, { params }) =>
   );
 
 export const PUT = async (req, { params }) =>
-  withMiddleware(verifyToken)(req, () => updateUserData(req, params));
+  withMiddleware(verifyToken, verifyUserRoles(ROLES.admin, ROLES.moderator))(
+    req,
+    () => updateUserData(req, params)
+  );
+
+export const DELETE = async (req, { params }) =>
+  withMiddleware(verifyToken, verifyUserRoles(ROLES.admin))(req, () =>
+    deleteUserAccount(req, params)
+  );

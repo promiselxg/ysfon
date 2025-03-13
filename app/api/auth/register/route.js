@@ -8,7 +8,6 @@ export const POST = async (req) => {
     const { username, email_address, roles, password, confirm_password } =
       await req.json();
 
-    // Validate required fields
     if (
       !username ||
       !roles ||
@@ -19,7 +18,6 @@ export const POST = async (req) => {
       return customMessage("Please fill out the required fields!", {}, 400);
     }
 
-    // Check if passwords match
     if (password !== confirm_password) {
       return customMessage("Password Mismatch!", {}, 400);
     }
@@ -43,7 +41,6 @@ export const POST = async (req) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // Check if user is an admin
     const isAdmin = roles.includes(2200);
 
     // Create the user with roles
