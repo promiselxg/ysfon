@@ -1,6 +1,6 @@
-import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import prisma from "@/utils/dbConnect";
+import prisma from "@/lib/utils/dbConnect";
+import { customMessage } from "@/lib/utils/customMessage";
 
 export const POST = async (req) => {
   try {
@@ -16,18 +16,12 @@ export const POST = async (req) => {
       !password ||
       !confirm_password
     ) {
-      return NextResponse.json(
-        { message: "Please fill out the required fields!" },
-        { status: 400 }
-      );
+      return customMessage("Please fill out the required fields!", {}, 400);
     }
 
     // Check if passwords match
     if (password !== confirm_password) {
-      return NextResponse.json(
-        { message: "Password Mismatch!" },
-        { status: 400 }
-      );
+      return customMessage("Password Mismatch!", {}, 400);
     }
 
     // Check if user already exists
@@ -38,9 +32,10 @@ export const POST = async (req) => {
     });
 
     if (userExist) {
-      return NextResponse.json(
-        { message: "Username or Email address already exists." },
-        { status: 400 }
+      return customMessage(
+        "Username or Email address already exists.",
+        {},
+        400
       );
     }
 
@@ -67,9 +62,9 @@ export const POST = async (req) => {
     });
 
     if (user) {
-      return NextResponse.json(
+      return customMessage(
+        "Registration successful.",
         {
-          message: "Registration successful.",
           user: {
             id: user.id,
             username: user.username,
@@ -78,19 +73,16 @@ export const POST = async (req) => {
             roles: user.roles,
           },
         },
-        { status: 201 }
+        201
       );
     } else {
-      return NextResponse.json(
-        { message: "Registration failed. Please try again!" },
-        { status: 400 }
-      );
+      return customMessage("Registration failed. Please try again", {}, 400);
     }
   } catch (error) {
-    console.log(error);
-    return NextResponse.json(
-      { message: "Something went wrong!", error: error.message },
-      { status: 500 }
+    return customMessage(
+      "Something went wrong!",
+      { error: error.message },
+      500
     );
   }
 };

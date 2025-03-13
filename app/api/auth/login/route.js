@@ -1,18 +1,15 @@
-import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import { generateToken, generateRefreshToken } from "@/utils/jwt";
+import { generateToken, generateRefreshToken } from "@/lib/utils/jwt";
 import { cookies } from "next/headers";
-import prisma from "@/utils/dbConnect";
+import prisma from "@/lib/utils/dbConnect";
+import { customMessage } from "@/lib/utils/customMessage";
 
 export const POST = async (req) => {
   const { username, password } = await req.json();
 
   // Check user credentials
   if (!username || !password) {
-    return new NextResponse(
-      JSON.stringify({ message: "Please enter your username or password." }),
-      { status: 400 }
-    );
+    return customMessage("Please enter your username or password.", {}, 400);
   }
 
   const user = await prisma.user.findFirst({
@@ -37,9 +34,9 @@ export const POST = async (req) => {
       maxAge: 7 * 24 * 60 * 60,
     });
 
-    return new NextResponse(
-      JSON.stringify({
-        message: "Login Successful",
+    return customMessage(
+      "Login Successful",
+      {
         userInfo: {
           token,
           refreshToken,
@@ -47,13 +44,10 @@ export const POST = async (req) => {
           isAdmin: user.isAdmin,
           username,
         },
-      }),
-      { status: 200 }
+      },
+      200
     );
   } else {
-    return new NextResponse(
-      JSON.stringify({ message: "Incorrect username or password." }),
-      { status: 400 }
-    );
+    return customMessage("Incorrect username or password.", {}, 400);
   }
 };

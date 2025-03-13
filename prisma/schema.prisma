@@ -14,6 +14,7 @@ model User {
   password                    String?
   email_address               String?
   roles                       UserRole[]
+  accountStatus               Boolean      @default(false)
   isAdmin                     Boolean @default(false)
   resetPasswordToken          String?
   resetPasswordTokenExpireAt  DateTime?
