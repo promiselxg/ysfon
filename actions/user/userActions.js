@@ -33,6 +33,40 @@ export const getAllUsers = async (req) => {
   }
 };
 
+export const getSingleUser = async (req, params) => {
+  const { id } = await params;
+
+  if (!id) {
+    return customMessage("User ID is required", {}, 400);
+  }
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        isAdmin: true,
+        username: true,
+        email_address: true,
+        accountStatus: true,
+        createdAt: true,
+      },
+    });
+
+    if (!user) {
+      return customMessage("User not found", {}, 404);
+    }
+
+    return customMessage("User found", { user }, 200);
+  } catch (error) {
+    return customMessage(
+      "Something went wrong!",
+      { error: error.message },
+      500
+    );
+  }
+};
+
 export const updateUserData = async (req, params) => {
   const { id } = await params;
 
@@ -255,7 +289,7 @@ const updateUserRoles = async ({ id, roles }) => {
     }
     const user = await prisma.user.findUnique({
       where: { id },
-      include: { roles: true }, // Fetch current roles
+      include: { roles: true },
     });
 
     if (!user) {
