@@ -34,13 +34,13 @@ model UserRole {
 
 model Product {
   id          String   @id @default(uuid())
-  name        String
+  name        String   @unique
   description String?
   price       Float    @db.Float
   stock       Int
   images      Json     @db.Json
   categoryId  String
-  category    Category @relation(fields: [categoryId], references: [id])
+  category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   orderItems  OrderItem[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -70,13 +70,13 @@ model Customer {
 model Order {
   id         String      @id @default(uuid())
   userId     String
-  user       Customer   @relation(fields: [userId], references: [id])
   total      Float      @db.Float
   status     OrderStatus @default(PENDING)
   orderItems OrderItem[]
   payment    Payment?
   invoice    Invoice?
   couponId   String?   
+  user       Customer   @relation(fields: [userId], references: [id])
   coupon     Coupon?    @relation(fields: [couponId], references: [id])
   createdAt  DateTime   @default(now())
 
@@ -100,9 +100,9 @@ model OrderItem {
 model Payment {
   id        String       @id @default(uuid())
   orderId   String       @unique
-  order     Order        @relation(fields: [orderId], references: [id])
   userId    String
   user      Customer     @relation(fields: [userId], references: [id])
+  order     Order        @relation(fields: [orderId], references: [id])
   amount    Float        @db.Float
   status    PaymentStatus @default(PENDING)
   method    PaymentMethod
@@ -115,8 +115,8 @@ model Payment {
 model Refund {
   id        String       @id @default(uuid())
   paymentId String       @unique
-  payment   Payment      @relation(fields: [paymentId], references: [id])
   userId    String
+  payment   Payment      @relation(fields: [paymentId], references: [id])
   user      Customer     @relation(fields: [userId], references: [id])
   amount    Float        @db.Float
   reason    String

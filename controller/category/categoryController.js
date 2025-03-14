@@ -1,5 +1,3 @@
-"use server";
-
 import { customMessage } from "@/lib/utils/customMessage";
 import prisma from "@/lib/utils/dbConnect";
 
@@ -81,20 +79,30 @@ export const deleteCategory = async (req, params) => {
   if (!id) {
     return customMessage("Category ID is required", {}, 400);
   }
+
   try {
     const categoryExist = await prisma.category.findUnique({
       where: { id },
+      include: { products: true },
     });
 
     if (!categoryExist) {
       return customMessage("Category not found or does not exist.", {}, 404);
     }
 
+    // Delete all products under the category
+    await prisma.product.deleteMany({
+      where: { categoryId: id },
+    });
+
+    // delete the category
     await prisma.category.delete({
       where: { id },
     });
+
     return customMessage("Category deleted successfully", {}, 200);
   } catch (error) {
+    console.log(error);
     return customMessage(
       "Something went wrong!",
       { error: error.message },

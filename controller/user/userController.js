@@ -1,5 +1,3 @@
-"use server";
-
 import { customMessage } from "@/lib/utils/customMessage";
 import bcrypt from "bcryptjs";
 import prisma from "@/lib/utils/dbConnect";
