@@ -4,7 +4,7 @@ import prisma from "@/lib/utils/dbConnect";
 import { cookies } from "next/headers";
 import ROLES from "@/lib/utils/roles";
 
-export const getAllUsers = async (req) => {
+const getAllUsers = async (req) => {
   const query = req.nextUrl.searchParams;
   const queryType = query.get("type") || "all";
   let response;
@@ -31,7 +31,7 @@ export const getAllUsers = async (req) => {
   }
 };
 
-export const getSingleUser = async (req, params) => {
+const getSingleUser = async (req, params) => {
   const { id } = await params;
 
   if (!id) {
@@ -65,7 +65,7 @@ export const getSingleUser = async (req, params) => {
   }
 };
 
-export const updateUserData = async (req, params) => {
+const updateUserData = async (req, params) => {
   const { id } = await params;
 
   if (!id) {
@@ -107,7 +107,7 @@ export const updateUserData = async (req, params) => {
   }
 };
 
-export const suspendUserAccount = async (req, params) => {
+const suspendUserAccount = async (req, params) => {
   const { id } = await params;
 
   if (!id) {
@@ -127,7 +127,7 @@ export const suspendUserAccount = async (req, params) => {
   }
 };
 
-export const suspendAccount = async (userId) => {
+const suspendAccount = async (userId) => {
   const user = await prisma.user.findUnique({
     where: { id: userId },
   });
@@ -144,7 +144,7 @@ export const suspendAccount = async (userId) => {
   return customMessage("Account suspended successfully", {}, 200);
 };
 
-export const deleteUserAccount = async (req, params) => {
+const deleteUserAccount = async (req, params) => {
   const { id } = await params;
 
   if (!id) {
@@ -376,4 +376,12 @@ const getSuspendedUsers = async () => {
     },
   });
   return customMessage("Suspended users", { count: users.length, users }, 200);
+};
+
+export const userControllers = {
+  getAllUsers,
+  getSingleUser,
+  updateUserData,
+  suspendUserAccount,
+  deleteUserAccount,
 };

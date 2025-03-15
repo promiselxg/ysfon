@@ -1,7 +1,7 @@
 import { customMessage } from "@/lib/utils/customMessage";
 import prisma from "@/lib/utils/dbConnect";
 
-export const createNewCategory = async (req) => {
+const createNewCategory = async (req) => {
   try {
     const { name } = await req.json();
     if (!name) {
@@ -29,7 +29,7 @@ export const createNewCategory = async (req) => {
   }
 };
 
-export const updateCategory = async (req, params) => {
+const updateCategory = async (req, params) => {
   const { id } = await params;
   if (!id) {
     return customMessage("Category ID is required", {}, 400);
@@ -53,7 +53,7 @@ export const updateCategory = async (req, params) => {
   }
 };
 
-export const getAllCategories = async () => {
+const getAllCategories = async () => {
   try {
     const categories = await prisma.category.findMany({
       orderBy: { createdAt: "desc" },
@@ -74,7 +74,7 @@ export const getAllCategories = async () => {
   }
 };
 
-export const deleteCategory = async (req, params) => {
+const deleteCategory = async (req, params) => {
   const { id } = await params;
   if (!id) {
     return customMessage("Category ID is required", {}, 400);
@@ -109,4 +109,11 @@ export const deleteCategory = async (req, params) => {
       500
     );
   }
+};
+
+export const categoryControllers = {
+  createNewCategory,
+  updateCategory,
+  getAllCategories,
+  deleteCategory,
 };

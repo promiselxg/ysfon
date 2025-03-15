@@ -3,7 +3,7 @@ import prisma from "@/lib/utils/dbConnect";
 import { isValidUUID } from "@/lib/utils/validateUUID";
 import sanitizeHtml from "sanitize-html";
 
-export const createNewProduct = async (req) => {
+const createNewProduct = async (req) => {
   try {
     const { name, description, price, categoryid, stock, images } =
       await req.json();
@@ -68,7 +68,7 @@ export const createNewProduct = async (req) => {
   }
 };
 
-export const getAllProducts = async (req) => {
+const getAllProducts = async (req) => {
   const query = req.nextUrl.searchParams;
 
   const page = parseInt(query.get("page")) || 1;
@@ -139,7 +139,7 @@ export const getAllProducts = async (req) => {
   }
 };
 
-export const getSingleProduct = async (req, params) => {
+const getSingleProduct = async (req, params) => {
   const { id } = await params;
   if (!id) {
     return customMessage("Product ID is required", {}, 400);
@@ -191,7 +191,7 @@ export const getSingleProduct = async (req, params) => {
   }
 };
 
-export const updateProduct = async (req, params) => {
+const updateProduct = async (req, params) => {
   try {
     const { id } = await params;
     const updates = await req.json();
@@ -287,7 +287,7 @@ export const updateProduct = async (req, params) => {
   }
 };
 
-export const deleteProduct = async (req, params) => {
+const deleteProduct = async (req, params) => {
   try {
     const { id } = await params;
 
@@ -315,4 +315,12 @@ export const deleteProduct = async (req, params) => {
   } catch (error) {
     return customMessage("Something went wrong", { error: error.message }, 500);
   }
+};
+
+export const productControllers = {
+  createNewProduct,
+  getAllProducts,
+  getSingleProduct,
+  updateProduct,
+  deleteProduct,
 };
