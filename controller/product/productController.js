@@ -86,7 +86,7 @@ const getAllProducts = async (req) => {
   categoryId = isValidUUID(categoryId) ? categoryId : null;
 
   try {
-    // 🔥 dynamic filters
+    //  dynamic filters
     const filters = {};
 
     if (search) {
@@ -106,7 +106,7 @@ const getAllProducts = async (req) => {
       filters.categoryId = categoryId;
     }
 
-    // 🔥 Fetch filtered products
+    //  Fetch filtered products
     const products = await prisma.product.findMany({
       where: filters,
       skip: offset,
@@ -182,7 +182,6 @@ const getSingleProduct = async (req, params) => {
 
     return customMessage("Product found", { product }, 200);
   } catch (error) {
-    console.log(error);
     return customMessage(
       "Something went wrong!",
       { error: error.message },
@@ -272,16 +271,12 @@ const updateProduct = async (req, params) => {
       }
     }
 
-    const updatedProduct = await prisma.product.update({
+    await prisma.product.update({
       where: { id },
       data: updates,
     });
 
-    return customMessage(
-      "Product updated successfully",
-      { updatedProduct },
-      200
-    );
+    return customMessage("Product updated successfully", {}, 200);
   } catch (error) {
     return customMessage("Something went wrong", { error: error.message }, 500);
   }

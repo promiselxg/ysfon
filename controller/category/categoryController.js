@@ -65,7 +65,6 @@ const getAllCategories = async () => {
       200
     );
   } catch (error) {
-    console.log(error);
     return customMessage(
       "Something went wrong!",
       { error: error.message },
@@ -102,7 +101,6 @@ const deleteCategory = async (req, params) => {
 
     return customMessage("Category deleted successfully", {}, 200);
   } catch (error) {
-    console.log(error);
     return customMessage(
       "Something went wrong!",
       { error: error.message },
