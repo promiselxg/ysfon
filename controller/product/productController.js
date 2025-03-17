@@ -1,4 +1,4 @@
-import { customMessage } from "@/lib/utils/customMessage";
+import { customMessage, ServerError } from "@/lib/utils/customMessage";
 import prisma from "@/lib/utils/dbConnect";
 import { isValidUUID } from "@/lib/utils/validateUUID";
 import sanitizeHtml from "sanitize-html";
@@ -63,8 +63,7 @@ const createNewProduct = async (req) => {
 
     return customMessage("Product created successfully", { product }, 201);
   } catch (error) {
-    console.log(error);
-    return customMessage("Something went wrong", { error: error.message }, 500);
+    return ServerError(error, {}, 500);
   }
 };
 
@@ -131,11 +130,7 @@ const getAllProducts = async (req) => {
       200
     );
   } catch (error) {
-    return customMessage(
-      "Something went wrong!",
-      { error: error.message },
-      500
-    );
+    return ServerError(error, {}, 500);
   }
 };
 
@@ -182,11 +177,7 @@ const getSingleProduct = async (req, params) => {
 
     return customMessage("Product found", { product }, 200);
   } catch (error) {
-    return customMessage(
-      "Something went wrong!",
-      { error: error.message },
-      500
-    );
+    return ServerError(error, {}, 500);
   }
 };
 
@@ -278,7 +269,7 @@ const updateProduct = async (req, params) => {
 
     return customMessage("Product updated successfully", {}, 200);
   } catch (error) {
-    return customMessage("Something went wrong", { error: error.message }, 500);
+    return ServerError(error, {}, 500);
   }
 };
 
@@ -308,7 +299,7 @@ const deleteProduct = async (req, params) => {
 
     return customMessage("Product deleted successfully", {}, 200);
   } catch (error) {
-    return customMessage("Something went wrong", { error: error.message }, 500);
+    return ServerError(error, {}, 500);
   }
 };
 

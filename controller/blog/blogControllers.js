@@ -1,4 +1,4 @@
-import { customMessage } from "@/lib/utils/customMessage";
+import { customMessage, ServerError } from "@/lib/utils/customMessage";
 import prisma from "@/lib/utils/dbConnect";
 import { isValidUUID } from "@/lib/utils/validateUUID";
 import sanitizeHtml from "sanitize-html";
@@ -23,11 +23,7 @@ const createNewBlogCategory = async (req, res) => {
 
     return customMessage("Category created successfully", { category }, 201);
   } catch (error) {
-    return customMessage(
-      "Something went wrong!",
-      { error: error.message },
-      500
-    );
+    return ServerError(error, {}, 500);
   }
 };
 
@@ -88,11 +84,7 @@ const createNewBlogPost = async (req, res) => {
 
     return customMessage("Blog post created successfully", { blog }, 201);
   } catch (error) {
-    return customMessage(
-      "Something went wrong!",
-      { error: error.message },
-      500
-    );
+    return ServerError(error, {}, 500);
   }
 };
 
@@ -126,11 +118,7 @@ const updateCategory = async (req, params) => {
 
     return customMessage("Category updated successfully", { category }, 200);
   } catch (error) {
-    return customMessage(
-      "Something went wrong!",
-      { error: error.message },
-      500
-    );
+    return ServerError(error, {}, 500);
   }
 };
 
@@ -146,11 +134,7 @@ const getAllCategories = async () => {
       200
     );
   } catch (error) {
-    return customMessage(
-      "Something went wrong!",
-      { error: error.message },
-      500
-    );
+    return ServerError(error, {}, 500);
   }
 };
 
@@ -213,11 +197,7 @@ const getAllBlogs = async (req) => {
       200
     );
   } catch (error) {
-    return customMessage(
-      "Something went wrong!",
-      { error: error.message },
-      500
-    );
+    return ServerError(error, {}, 500);
   }
 };
 
@@ -256,11 +236,7 @@ const getSigleBlogPost = async (req, params) => {
 
     return customMessage("Post found", { blogPost }, 200);
   } catch (error) {
-    return customMessage(
-      "Something went wrong!",
-      { error: error.message },
-      500
-    );
+    return ServerError(error, {}, 500);
   }
 };
 
@@ -336,8 +312,7 @@ const updateBlogPost = async (req, params) => {
 
     return customMessage(`Updated successfully`, {}, 200);
   } catch (error) {
-    console.log(error);
-    return customMessage("Something went wrong", { error: error.message }, 500);
+    return ServerError(error, {}, 500);
   }
 };
 
@@ -372,11 +347,7 @@ const deleteCategory = async (req, params) => {
 
     return customMessage("Category deleted successfully", {}, 200);
   } catch (error) {
-    return customMessage(
-      "Something went wrong!",
-      { error: error.message },
-      500
-    );
+    return ServerError(error, {}, 500);
   }
 };
 
@@ -406,7 +377,7 @@ const deleteBlogPost = async (req, params) => {
 
     return customMessage("Post deleted successfully", {}, 200);
   } catch (error) {
-    return customMessage("Something went wrong", { error: error.message }, 500);
+    return ServerError(error, {}, 500);
   }
 };
 

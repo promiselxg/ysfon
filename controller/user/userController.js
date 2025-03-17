@@ -1,4 +1,4 @@
-import { customMessage } from "@/lib/utils/customMessage";
+import { customMessage, ServerError } from "@/lib/utils/customMessage";
 import bcrypt from "bcryptjs";
 import prisma from "@/lib/utils/dbConnect";
 import { cookies } from "next/headers";
@@ -23,11 +23,7 @@ const getAllUsers = async (req) => {
 
     return response;
   } catch (error) {
-    return customMessage(
-      "Something went wrong!",
-      { error: error.message },
-      500
-    );
+    return ServerError(error, {}, 500);
   }
 };
 
@@ -57,11 +53,7 @@ const getSingleUser = async (req, params) => {
 
     return customMessage("User found", { user }, 200);
   } catch (error) {
-    return customMessage(
-      "Something went wrong!",
-      { error: error.message },
-      500
-    );
+    return ServerError(error, {}, 500);
   }
 };
 
@@ -99,11 +91,7 @@ const updateUserData = async (req, params) => {
         return customMessage("Invalid request type", {}, 400);
     }
   } catch (error) {
-    return customMessage(
-      "Something went wrong!",
-      { error: error.message },
-      500
-    );
+    return ServerError(error, {}, 500);
   }
 };
 
@@ -119,11 +107,7 @@ const suspendUserAccount = async (req, params) => {
     response = await suspendAccount(id);
     return response;
   } catch (error) {
-    return customMessage(
-      "Something went wrong!",
-      { error: error.message },
-      500
-    );
+    return ServerError(error, {}, 500);
   }
 };
 
@@ -156,11 +140,7 @@ const deleteUserAccount = async (req, params) => {
     response = await deleteAccount(id);
     return response;
   } catch (error) {
-    return customMessage(
-      "Something went wrong!",
-      { error: error.message },
-      500
-    );
+    return ServerError(error, {}, 500);
   }
 };
 
@@ -206,11 +186,7 @@ const updateUsername = async ({ id, username, password, newUsername }) => {
       200
     );
   } catch (error) {
-    return customMessage(
-      "Something went wrong!",
-      { error: error.message },
-      500
-    );
+    return ServerError(error, {}, 500);
   }
 };
 
@@ -259,11 +235,7 @@ const updatePassword = async ({
       200
     );
   } catch (error) {
-    return customMessage(
-      "Something went wrong!",
-      { error: error.message },
-      500
-    );
+    return ServerError(error, {}, 500);
   }
 };
 

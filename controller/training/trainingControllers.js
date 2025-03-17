@@ -2,7 +2,7 @@ import prisma from "@/lib/utils/dbConnect";
 import { isValidUUID } from "@/lib/utils/validateUUID";
 import sanitize from "sanitize-html";
 
-const { customMessage } = require("@/lib/utils/customMessage");
+const { customMessage, ServerError } = require("@/lib/utils/customMessage");
 
 const createNewCourse = async (req) => {
   try {
@@ -49,11 +49,7 @@ const createNewCourse = async (req) => {
       201
     );
   } catch (error) {
-    return customMessage(
-      "Something went wrong!",
-      { error: error.message },
-      500
-    );
+    return ServerError(error, {}, 500);
   }
 };
 
@@ -86,11 +82,85 @@ const createCourseCategory = async (req) => {
       201
     );
   } catch (error) {
+    return ServerError(error, {}, 500);
+  }
+};
+
+const createCourseChapter = async (req, params) => {
+  try {
+    const { id } = await params;
+    const userId = req.user.id;
+
+    const { title } = await req.json();
+
+    if (!id) {
+      return customMessage("Course ID is required", {}, 400);
+    }
+
+    if (!title) {
+      return customMessage("Chapter title is required", {}, 400);
+    }
+
+    if (typeof title !== "string") {
+      return customMessage("Chapter title must be a string", {}, 400);
+    }
+
+    if (!isValidUUID(id)) {
+      return customMessage("Invalid Course ID", {}, 400);
+    }
+    if (
+      await prisma.chapter.findFirst({
+        where: { title },
+      })
+    ) {
+      return customMessage("Chapter title already exist.", {}, 400);
+    }
+
+    const courseExist = await prisma.course.findUnique({
+      where: { id },
+    });
+
+    if (!courseExist) {
+      return customMessage("Course not found", {}, 404);
+    }
+
+    if (courseExist.userId !== userId) {
+      return customMessage(
+        "Unauthorized: you do not have the required permission to perform this action",
+        {},
+        401
+      );
+    }
+
+    const lastChapter = await prisma.chapter.findFirst({
+      where: {
+        courseId: id,
+      },
+      orderBy: {
+        position: "desc",
+      },
+    });
+
+    const newPosition = lastChapter ? lastChapter.position + 1 : 1;
+
+    const sanitizedTitle = sanitize(title);
+
+    const chapter = await prisma.chapter.create({
+      data: {
+        title: sanitizedTitle,
+        position: newPosition,
+        courseId: id,
+      },
+    });
+
     return customMessage(
-      "Something went wrong!",
-      { error: error.message },
-      500
+      "Course chapter created successfully",
+      { chapter },
+      201
     );
+  } catch (error) {
+    console.log(error);
+    return ServerError(error, {}, 500);
   }
 };
 
@@ -119,11 +189,7 @@ const updateCategory = async (req, params) => {
       200
     );
   } catch (error) {
-    return customMessage(
-      "Something went wrong!",
-      { error: error.message },
-      500
-    );
+    return ServerError(error, {}, 500);
   }
 };
 
@@ -224,6 +290,74 @@ const updateCourse = async (req, params) => {
   }
 };
 
+const updateCourseChapter = async (req, params) => {
+  try {
+    const { chapterId, id } = await params;
+
+    const userId = req.user.id;
+    const updates = await req.json();
+
+    if (!chapterId) {
+      return customMessage("Chapter ID is required", {}, 400);
+    }
+
+    if (!updates.title) {
+      return customMessage("Chapter Title is required", {}, 400);
+    }
+
+    if (!isValidUUID(id) || !isValidUUID(chapterId)) {
+      return customMessage("Invalid Chapter ID or Course ID", {}, 400);
+    }
+
+    const chapter = await prisma.chapter.findUnique({
+      where: { id: chapterId },
+    });
+
+    if (!chapter) {
+      return customMessage("Chapter not found", {}, 404);
+    }
+
+    const course = await prisma.course.findUnique({
+      where: { id },
+    });
+
+    if (!course) {
+      return customMessage("Course not found", {}, 404);
+    }
+
+    if (course.userId !== userId) {
+      return customMessage(
+        "Unauthorized: you do not have the required permission to perform this action",
+        {},
+        401
+      );
+    }
+
+    if (
+      await prisma.chapter.findFirst({
+        where: {
+          title: sanitize(updates.title),
+        },
+      })
+    ) {
+      return customMessage("Chapter title already exist.", {}, 409);
+    }
+    // Sanitize title if provided
+    if (updates.title) {
+      updates.title = sanitize(updates.title);
+    }
+
+    await prisma.chapter.update({
+      where: { id: chapterId },
+      data: updates,
+    });
+
+    return customMessage("Course Chapter updated successfully", {}, 200);
+  } catch (error) {
+    return ServerError(error, {}, 500);
+  }
+};
+
 const getAllCategories = async () => {
   try {
     const categories = await prisma.courseCategory.findMany({
@@ -236,11 +370,7 @@ const getAllCategories = async () => {
       200
     );
   } catch (error) {
-    return customMessage(
-      "Something went wrong!",
-      { error: error.message },
-      500
-    );
+    return ServerError(error, {}, 500);
   }
 };
 
@@ -320,16 +450,15 @@ const getAllCourses = async (req) => {
     );
   } catch (error) {
     console.log(error);
-    return customMessage(
-      "Something went wrong!",
-      { error: error.message },
-      500
-    );
+    return ServerError(error, {}, 500);
   }
 };
 
 const getSingleCourse = async (req, params) => {
   const { id } = await params;
+
+  const userId = req.user.id;
+
   if (!id) {
     return customMessage("course ID is required", {}, 400);
   }
@@ -340,19 +469,18 @@ const getSingleCourse = async (req, params) => {
 
   try {
     const course = await prisma.course.findUnique({
-      where: { id },
-      select: {
-        id: true,
-        title: true,
-        userId: true,
-        description: true,
-        price: true,
-        createdAt: true,
-        imageUrl: true,
-        isPublished: true,
-        category: { select: { id: true, name: true } },
-        chapters: true,
-        attachments: true,
+      where: { id, userId },
+      include: {
+        chapters: {
+          orderBy: {
+            position: "asc",
+          },
+        },
+        attachments: {
+          orderBy: {
+            createdAt: "desc",
+          },
+        },
       },
     });
 
@@ -362,11 +490,7 @@ const getSingleCourse = async (req, params) => {
 
     return customMessage("Course found", { course }, 200);
   } catch (error) {
-    return customMessage(
-      "Something went wrong!",
-      { error: error.message },
-      500
-    );
+    return ServerError(error, {}, 500);
   }
 };
 
@@ -403,17 +527,13 @@ const deleteCategory = async (req, params) => {
 
     return customMessage("Course category deleted successfully", {}, 200);
   } catch (error) {
-    return customMessage(
-      "Something went wrong!",
-      { error: error.message },
-      500
-    );
+    return ServerError(error, {}, 500);
   }
 };
 
 const deleteCourse = async (req, params) => {
   const { id } = await params;
-  const { userId } = await req.json();
+  const userId = req.user.id;
 
   if (!id || !userId) {
     return customMessage("Missing required fields.", {}, 400);
@@ -439,22 +559,56 @@ const deleteCourse = async (req, params) => {
 
     return customMessage("Course deleted successfully", {}, 200);
   } catch (error) {
-    return customMessage(
-      "Something went wrong!",
-      { error: error.message },
-      500
-    );
+    return ServerError(error, {}, 500);
+  }
+};
+
+const deleteCourseChapter = async (req, params) => {
+  const { chapterId, id } = await params;
+  const userId = req.user.id;
+
+  if (!id || !userId || !chapterId) {
+    return customMessage("Missing required fields.", {}, 400);
+  }
+
+  if (!isValidUUID(id) || !isValidUUID(userId)) {
+    return customMessage("Invalid Course Chapter ID or User ID", {}, 400);
+  }
+
+  try {
+    const chapterExist = await prisma.course.findUnique({
+      where: { id },
+    });
+
+    if (!chapterExist) {
+      return customMessage(
+        "Course chapter not found or does not exist.",
+        {},
+        404
+      );
+    }
+
+    await prisma.chapter.delete({
+      where: { id: chapterId, courseId: id },
+    });
+
+    return customMessage("Course chapter deleted successfully", {}, 200);
+  } catch (error) {
+    return ServerError(error, {}, 500);
   }
 };
 
 export const trainingControllers = {
   createNewCourse,
   createCourseCategory,
+  createCourseChapter,
   updateCategory,
   updateCourse,
+  updateCourseChapter,
   getAllCategories,
   getAllCourses,
   getSingleCourse,
   deleteCategory,
   deleteCourse,
+  deleteCourseChapter,
 };

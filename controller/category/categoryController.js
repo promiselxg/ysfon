@@ -1,4 +1,4 @@
-import { customMessage } from "@/lib/utils/customMessage";
+import { customMessage, ServerError } from "@/lib/utils/customMessage";
 import prisma from "@/lib/utils/dbConnect";
 
 const createNewCategory = async (req) => {
@@ -21,11 +21,7 @@ const createNewCategory = async (req) => {
 
     return customMessage("Category created successfully", { category }, 201);
   } catch (error) {
-    return customMessage(
-      "Something went wrong!",
-      { error: error.message },
-      500
-    );
+    return ServerError(error, {}, 500);
   }
 };
 
@@ -45,11 +41,7 @@ const updateCategory = async (req, params) => {
     });
     return customMessage("Category updated successfully", { category }, 200);
   } catch (error) {
-    return customMessage(
-      "Something went wrong!",
-      { error: error.message },
-      500
-    );
+    return ServerError(error, {}, 500);
   }
 };
 
@@ -65,11 +57,7 @@ const getAllCategories = async () => {
       200
     );
   } catch (error) {
-    return customMessage(
-      "Something went wrong!",
-      { error: error.message },
-      500
-    );
+    return ServerError(error, {}, 500);
   }
 };
 
@@ -101,11 +89,7 @@ const deleteCategory = async (req, params) => {
 
     return customMessage("Category deleted successfully", {}, 200);
   } catch (error) {
-    return customMessage(
-      "Something went wrong!",
-      { error: error.message },
-      500
-    );
+    return ServerError(error, {}, 500);
   }
 };
 
