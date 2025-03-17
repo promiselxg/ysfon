@@ -179,9 +179,8 @@ model Project {
   userId      String
   title       String   @unique
   description String 
-  imageUrl    String?
   categoryId  String?
-  mediaType   MediaType?
+  mediaType   MediaType
   mediaDoc    Json?
   category    ProjectCategory? @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   createdAt   DateTime @default(now())

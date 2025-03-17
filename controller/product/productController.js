@@ -45,7 +45,7 @@ const createNewProduct = async (req) => {
 
     const formattedImages = images.map((img) => {
       if (!img.publicId || !img.public_url) {
-        throw new Error("Each image must have publicId and public_url");
+        throw new Error("Each image must have a public_id and public_url.");
       }
       return { publicId: img.publicId, public_url: img.public_url };
     });

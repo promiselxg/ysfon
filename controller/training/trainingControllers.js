@@ -159,7 +159,6 @@ const createCourseChapter = async (req, params) => {
       201
     );
   } catch (error) {
-    console.log(error);
     return ServerError(error, {}, 500);
   }
 };
