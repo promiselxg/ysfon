@@ -173,6 +173,31 @@ model CourseCategory {
   updatedAt DateTime @updatedAt
 }
 
+model Project {
+  id          String   @id @default(uuid())
+  slug        String
+  userId      String
+  title       String   @unique
+  description String 
+  imageUrl    String?
+  categoryId  String?
+  mediaType   MediaType?
+  mediaDoc    Json?
+  category    ProjectCategory? @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([categoryId])
+}
+
+model ProjectCategory {
+  id          String   @id @default(uuid())
+  title       String   @unique
+  projects    Project[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
 model Attachment {
   id        String   @id @default(uuid())
   name      String
@@ -280,4 +305,9 @@ enum RefundStatus {
   APPROVED
   REJECTED
   PROCESSED
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
 }
