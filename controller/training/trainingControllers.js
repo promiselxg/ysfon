@@ -207,10 +207,10 @@ const updateCourse = async (req, params) => {
 
     if (
       !(await prisma.course.findUnique({
-        where: { id },
+        where: { id, userId: req.user.id },
       }))
     ) {
-      return customMessage("Course not found", {}, 404);
+      return customMessage("Unauthorized", {}, 401);
     }
 
     // Ensure updates contain at least one valid field
@@ -240,7 +240,7 @@ const updateCourse = async (req, params) => {
       updates.category = {
         connect: { id: updates.categoryId },
       };
-      delete updates.categoryId; // Ensure no direct string assignment
+      delete updates.categoryId;
     }
 
     // Sanitize name and description if provided
@@ -249,13 +249,6 @@ const updateCourse = async (req, params) => {
     }
     if (updates.description) {
       updates.description = sanitize(updates.description);
-    }
-
-    if (updates.isPublished) {
-      if (typeof updates.isPublished !== "boolean") {
-        throw new Error("isPublished must be a boolean");
-      }
-      updates.isPublished = updates.isPublished;
     }
     // Handle images update (expects an array of image objects)
 
@@ -284,14 +277,226 @@ const updateCourse = async (req, params) => {
 
     return customMessage("Course updated successfully", {}, 200);
   } catch (error) {
-    console.log(error);
     return customMessage("Something went wrong", { error: error.message }, 500);
+  }
+};
+
+const publishCourse = async (req, params) => {
+  const { id: courseId } = await params;
+  const userId = req.user.id;
+
+  try {
+    if (!userId) {
+      return customMessage("Unauthorized", {}, 401);
+    }
+
+    const course = await prisma.course.findUnique({
+      where: {
+        id: courseId,
+        userId,
+      },
+      include: {
+        chapters: {
+          include: {
+            muxData: true,
+          },
+        },
+      },
+    });
+    if (!course) {
+      return customMessage("course not found", {}, 404);
+    }
+
+    const hasPublishedChapter = course.chapters.som(
+      (chapter) => chapter.isPublished
+    );
+    if (
+      !course.title ||
+      !course.description ||
+      !course.imageUrl ||
+      !course.categoryId ||
+      !hasPublishedChapter
+    ) {
+      return customMessage("Missing required fields", {}, 401);
+    }
+
+    const publishedCourse = await prisma.course.update({
+      where: {
+        id: courseId,
+        userId,
+      },
+      data: {
+        isPublished: true,
+      },
+    });
+
+    return customMessage(
+      "Course published successfully",
+      { publishedCourse },
+      200
+    );
+  } catch (error) {
+    return ServerError(error, {}, 500);
+  }
+};
+
+const unpublishCourse = async (req, params) => {
+  const { id: courseId } = await params;
+  const userId = req.user.id;
+
+  try {
+    if (!userId) {
+      return customMessage("Unauthorized", {}, 401);
+    }
+
+    const course = await prisma.course.findUnique({
+      where: {
+        id: courseId,
+        userId,
+      },
+    });
+    if (!course) {
+      return customMessage("course not found", {}, 404);
+    }
+
+    const unpublishedCourse = await prisma.course.update({
+      where: {
+        id: courseId,
+        userId,
+      },
+      data: {
+        isPublished: false,
+      },
+    });
+
+    return customMessage(
+      "Course unpublished successfully",
+      { unpublishedCourse },
+      200
+    );
+  } catch (error) {
+    return ServerError(error, {}, 500);
+  }
+};
+
+const publishCourseChapter = async (req, params) => {
+  const { id: courseId, chapterId } = await params;
+  const userId = req.user.id;
+  try {
+    if (!userId) {
+      return customMessage("Unauthorized access", {}, 401);
+    }
+
+    const myCourse = await prisma.course.findUnique({
+      where: {
+        id: courseId,
+        userId,
+      },
+    });
+
+    if (!myCourse) {
+      return customMessage("Unauthorized access", {}, 401);
+    }
+
+    const chapter = await prisma.chapter.findUnique({
+      where: {
+        id: chapterId,
+        courseId,
+      },
+    });
+
+    // Get Mux Data
+
+    if (!chapter || !chapter.title || !chapter.description) {
+      return customMessage("Missing required fields", {}, 400);
+    }
+
+    if (chapter.mediaType.toUppercase() === "video") {
+      if (!muxData || !chapter.videoUrl) {
+        return customMessage("Missing required fields", {}, 400);
+      }
+    }
+
+    const publishChapter = await prisma.chapter.update({
+      where: {
+        id: chapterId,
+        courseId,
+      },
+      data: {
+        isPublished: true,
+      },
+    });
+
+    return customMessage(
+      "Course chapter published successfully",
+      { publishChapter },
+      200
+    );
+  } catch (error) {
+    return ServerError(error, {}, 500);
+  }
+};
+
+const unpublishCourseChapter = async (req, params) => {
+  const { id: courseId, chapterId } = await params;
+  const userId = req.user.id;
+  try {
+    if (!userId) {
+      return customMessage("Unauthorized access", {}, 401);
+    }
+
+    const myCourse = await prisma.course.findUnique({
+      where: {
+        id: courseId,
+        userId,
+      },
+    });
+
+    if (!myCourse) {
+      return customMessage("Unauthorized access", {}, 401);
+    }
+
+    const unPublished = await prisma.chapter.update({
+      where: {
+        id: chapterId,
+        courseId,
+      },
+      data: {
+        isPublished: false,
+      },
+    });
+
+    const publishedChaptersInCourse = await prisma.chapter.findMany({
+      where: {
+        chapterId,
+        isPublished: true,
+      },
+    });
+
+    if (!publishedChaptersInCourse.length) {
+      await prisma.course.update({
+        where: {
+          id: courseId,
+        },
+        data: {
+          isPublished: false,
+        },
+      });
+    }
+
+    return customMessage(
+      "Course chapter unpublished successfully",
+      { unPublished },
+      200
+    );
+  } catch (error) {
+    return ServerError(error, {}, 500);
   }
 };
 
 const updateCourseChapter = async (req, params) => {
   try {
-    const { chapterId, id } = await params;
+    const { chapterId, id: courseId } = await params;
 
     const userId = req.user.id;
     const updates = await req.json();
@@ -300,11 +505,7 @@ const updateCourseChapter = async (req, params) => {
       return customMessage("Chapter ID is required", {}, 400);
     }
 
-    if (!updates.title) {
-      return customMessage("Chapter Title is required", {}, 400);
-    }
-
-    if (!isValidUUID(id) || !isValidUUID(chapterId)) {
+    if (!isValidUUID(courseId) || !isValidUUID(chapterId)) {
       return customMessage("Invalid Chapter ID or Course ID", {}, 400);
     }
 
@@ -317,7 +518,7 @@ const updateCourseChapter = async (req, params) => {
     }
 
     const course = await prisma.course.findUnique({
-      where: { id },
+      where: { id: courseId },
     });
 
     if (!course) {
@@ -332,26 +533,35 @@ const updateCourseChapter = async (req, params) => {
       );
     }
 
-    if (
-      await prisma.chapter.findFirst({
+    if (updates?.title) {
+      const titleExist = await prisma.chapter.findFirst({
         where: {
           title: sanitize(updates.title),
         },
-      })
-    ) {
-      return customMessage("Chapter title already exist.", {}, 409);
+      });
+      if (titleExist) {
+        return customMessage("Chapter title already exist.", {}, 409);
+      }
     }
+
     // Sanitize title if provided
-    if (updates.title) {
+    if (updates?.title) {
       updates.title = sanitize(updates.title);
     }
 
+    if (updates?.isFree) {
+      updates.isFree = !!updates.isFree;
+    }
+    // handle video upload
+
     await prisma.chapter.update({
-      where: { id: chapterId },
-      data: updates,
+      where: { id: chapterId, courseId },
+      data: {
+        ...updates,
+      },
     });
 
-    return customMessage("Course Chapter updated successfully", {}, 200);
+    return customMessage(`Course chapter updated successfully`, {}, 200);
   } catch (error) {
     return ServerError(error, {}, 500);
   }
@@ -428,6 +638,7 @@ const getAllCourses = async (req) => {
       orderBy: { createdAt: "desc" },
       select: {
         id: true,
+        userId: true,
         title: true,
         description: true,
         price: true,
@@ -448,27 +659,26 @@ const getAllCourses = async (req) => {
       200
     );
   } catch (error) {
-    console.log(error);
     return ServerError(error, {}, 500);
   }
 };
 
 const getSingleCourse = async (req, params) => {
-  const { id } = await params;
+  const { id: courseId } = await params;
 
   const userId = req.user.id;
 
-  if (!id) {
+  if (!courseId) {
     return customMessage("course ID is required", {}, 400);
   }
 
-  if (!isValidUUID(id)) {
+  if (!isValidUUID(courseId)) {
     return customMessage("Invalid course ID", {}, 400);
   }
 
   try {
     const course = await prisma.course.findUnique({
-      where: { id, userId },
+      where: { id: courseId, userId },
       include: {
         chapters: {
           orderBy: {
@@ -544,11 +754,24 @@ const deleteCourse = async (req, params) => {
 
   try {
     const courseExist = await prisma.course.findUnique({
-      where: { id },
+      where: { id, userId },
+      include: {
+        chapters: {
+          include: {
+            muxData: true,
+          },
+        },
+      },
     });
 
     if (!courseExist) {
       return customMessage("Course not found or does not exist.", {}, 404);
+    }
+
+    for (const chapter of courseExist.chapters) {
+      if (chapter.muxData?.assetId) {
+        await Video.Assets.del(chapter.muxData.assetId);
+      }
     }
 
     // delete the category
@@ -591,6 +814,24 @@ const deleteCourseChapter = async (req, params) => {
       where: { id: chapterId, courseId: id },
     });
 
+    const publishedChaptersInCourse = await prisma.chapter.findMany({
+      where: {
+        courseId: id,
+        isPublished: true,
+      },
+    });
+
+    if (!publishedChaptersInCourse) {
+      await prisma.course.update({
+        where: {
+          courseId: id,
+        },
+        data: {
+          isPublished: false,
+        },
+      });
+    }
+
     return customMessage("Course chapter deleted successfully", {}, 200);
   } catch (error) {
     return ServerError(error, {}, 500);
@@ -603,6 +844,10 @@ export const trainingControllers = {
   createCourseChapter,
   updateCategory,
   updateCourse,
+  publishCourse,
+  unpublishCourse,
+  publishCourseChapter,
+  unpublishCourseChapter,
   updateCourseChapter,
   getAllCategories,
   getAllCourses,

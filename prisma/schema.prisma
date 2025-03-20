@@ -217,6 +217,7 @@ model Chapter {
   position      Int
   isFree        Boolean @default(false)
   isPublished   Boolean @default(false)
+  mediaType     MediaType?
   courseId      String
   course        Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
   userProgress  UserProgress[]

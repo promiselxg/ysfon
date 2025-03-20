@@ -7,11 +7,5 @@ import { withMiddleware } from "@/lib/utils/withMiddleware";
 export const PATCH = async (req, { params }) =>
   withMiddleware(verifyToken, verifyUserRoles(ROLES.admin, ROLES.moderator))(
     req,
-    () => trainingControllers.updateCourseChapter(req, params)
-  );
-
-export const DELETE = async (req, { params }) =>
-  withMiddleware(verifyToken, verifyUserRoles(ROLES.admin, ROLES.moderator))(
-    req,
-    () => trainingControllers.deleteCourseChapter(req, params)
+    () => trainingControllers.unpublishCourse(req, params)
   );
