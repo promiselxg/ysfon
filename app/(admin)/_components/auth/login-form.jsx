@@ -8,9 +8,29 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
 
-export function LoginForm({ className, props }) {
+import { useEffect, useState } from "react";
+import { useAuthStore } from "@/store/authStore";
+import { useRouter } from "next/navigation";
+
+export function LoginForm() {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const { user, login, loading, error } = useAuthStore();
+  const router = useRouter();
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    await login(username, password);
+  };
+
+  useEffect(() => {
+    if (user) {
+      router.replace("/dashboard");
+    }
+  }, [user, router]);
+
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
+    <div className={cn("flex flex-col gap-6")}>
       <Card className="overflow-hidden">
         <CardContent className="grid p-0 md:grid-cols-2">
           <form className="p-6 md:p-8">
@@ -25,8 +45,9 @@ export function LoginForm({ className, props }) {
                 <Label htmlFor="username">Username</Label>
                 <Input
                   id="username"
-                  type="username"
                   placeholder="username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
                   required
                 />
               </div>
@@ -40,11 +61,22 @@ export function LoginForm({ className, props }) {
                     Forgot your password?
                   </Link>
                 </div>
-                <Input id="password" type="password" required />
+                <Input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
               </div>
-              <Button type="button" className="w-full cursor-pointer">
-                Login
+              <Button
+                type="button"
+                className="w-full cursor-pointer"
+                onClick={(e) => handleLogin(e)}
+              >
+                {loading ? "Logging in..." : "Login"}
               </Button>
+              {error && <p className="text-[red]">{error}</p>}
             </div>
           </form>
           <div className="relative hidden bg-muted md:block">

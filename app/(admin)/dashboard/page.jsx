@@ -1,4 +1,4 @@
-import React from "react";
+import Profile from "../_components/profile";
 
 const DashboardPage = () => {
   return (
@@ -9,7 +9,9 @@ const DashboardPage = () => {
           <div className="aspect-video rounded-xl bg-[--default-bg] boxShadow" />
           <div className="aspect-video rounded-xl bg-[--default-bg] boxShadow" />
         </div>
-        <div className="min-h-[100vh] flex-1 rounded-xl bg-[green] md:min-h-min" />
+        <div className="min-h-[100vh] flex-1 rounded-xl bg-[green] md:min-h-min">
+          <Profile />
+        </div>
       </div>
     </>
   );
