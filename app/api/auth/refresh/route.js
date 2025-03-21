@@ -1,37 +1,22 @@
-import { NextResponse } from "next/server";
-import JWT from "jsonwebtoken";
 import { cookies } from "next/headers";
+import JWT from "jsonwebtoken";
 import { generateToken } from "@/lib/utils/jwt";
+import { customMessage } from "@/lib/utils/customMessage";
 
-export const GET = async () => {
+export async function GET() {
   try {
     const cookieStore = await cookies();
     const refreshToken = cookieStore.get("refreshToken")?.value;
 
     if (!refreshToken) {
-      return new NextResponse(
-        JSON.stringify({ message: "Refresh token missing" }),
-        { status: 401 }
-      );
+      return customMessage("Refresh token missing", {}, 401);
     }
 
     const decoded = JWT.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
     const newAccessToken = generateToken(decoded.id);
 
-    cookieStore.set("token", newAccessToken, {
-      httpOnly: true,
-      maxAge: 15 * 60,
-      secure: process.env.NODE_ENV === "production",
-    });
-
-    return new NextResponse(
-      JSON.stringify({ message: "Token refreshed", token: newAccessToken }),
-      { status: 200 }
-    );
+    return customMessage("Token refreshed", { token: newAccessToken }, 200);
   } catch (error) {
-    return new NextResponse(
-      JSON.stringify({ message: "Invalid refresh token" }),
-      { status: 403 }
-    );
+    return customMessage("Invalid refresh token", {}, 403);
   }
-};
+}

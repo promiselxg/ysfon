@@ -12,6 +12,7 @@ const Profile = () => {
       router.replace("/auth/login");
     }
   }, [user, router]);
+
   return <div>profile {user?.username}</div>;
 };
 

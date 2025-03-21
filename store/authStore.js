@@ -29,7 +29,7 @@ export const useAuthStore = create(
 
       logout: async () => {
         try {
-          //await signout();
+          await signout();
           set({
             user: null,
             loading: false,
