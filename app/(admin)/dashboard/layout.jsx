@@ -10,6 +10,7 @@ import { AppSidebar } from "../_components/dashboard/app-sidebar";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
 import NavBreadCrumb from "../_components/dashboard/nav-breadcrumb";
 import SessionProvider from "@/providers/sessionProvider";
+import { Toaster } from "@/components/ui/sonner";
 
 export default function RootLayout({ children }) {
   return (
@@ -27,6 +28,7 @@ export default function RootLayout({ children }) {
             </div>
           </header>
           {children}
+          <Toaster richColors />
         </SidebarInset>
       </SidebarProvider>
     </SessionProvider>

@@ -1,14 +1,11 @@
-import {
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-} from "@/components/ui/breadcrumb";
+import { BreadcrumbItem, BreadcrumbList } from "@/components/ui/breadcrumb";
+import Link from "next/link";
 export default function NavBreadCrumb() {
   return (
     <>
       <BreadcrumbList>
         <BreadcrumbItem className="hidden md:block">
-          <BreadcrumbLink href="#">Building Your Application</BreadcrumbLink>
+          <Link href="/dashboard">Dashboard</Link>
         </BreadcrumbItem>
       </BreadcrumbList>
     </>

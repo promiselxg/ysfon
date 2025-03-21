@@ -1,7 +1,11 @@
 import React from "react";
 
-const TrainingPage = () => {
-  return <div>TrainingPage</div>;
+const CourseTrainingPage = () => {
+  return (
+    <>
+      <h1>Course Training Page</h1>
+    </>
+  );
 };
 
-export default TrainingPage;
+export default CourseTrainingPage;
