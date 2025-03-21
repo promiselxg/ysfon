@@ -9,7 +9,6 @@ import { apiCall } from "@/lib/utils/api";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormMessage,
   FormLabel,
   FormField,
@@ -49,8 +48,10 @@ const CourseTitle = () => {
         title: values.title,
         userId: user.id,
       });
+      console.log(response);
       if (response) {
-        router.push(`/training/course/${response?.course?.id}`);
+        toast.success(`${response.message}`);
+        router.replace(`/dashboard/training/course/${response?.course?.id}`);
       }
     } catch (error) {
       toast?.error("Something went wrong!", {
@@ -87,12 +88,11 @@ const CourseTitle = () => {
                     <Input
                       disabled={isSubmitting}
                       placeholder="eg: 'Advanced web development"
+                      className="shadow"
                       {...field}
                     />
                   </FormControl>
-                  <FormDescription>
-                    what will you teach in this course?
-                  </FormDescription>
+
                   <FormMessage />
                 </FormItem>
               )}
