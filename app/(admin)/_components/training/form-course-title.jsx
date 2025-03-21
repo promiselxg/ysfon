@@ -48,7 +48,6 @@ const CourseTitle = () => {
         title: values.title,
         userId: user.id,
       });
-      console.log(response);
       if (response) {
         toast.success(`${response.message}`);
         router.replace(`/dashboard/training/course/${response?.course?.id}`);

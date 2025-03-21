@@ -699,7 +699,9 @@ const getSingleCourse = async (req, params) => {
 
     return customMessage("Course found", { course }, 200);
   } catch (error) {
-    return ServerError(error, {}, 500);
+    console.error(error);
+    throw new Error(error, 500);
+    // return ServerError(error, {}, 500);
   }
 };
 
