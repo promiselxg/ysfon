@@ -20,7 +20,7 @@ const CourseEditPage = () => {
 
   // 1. Check if courseId is valid
   if (!isValidUUID(courseId)) {
-    redirect("/dashboardx");
+    redirect("/dashboard");
   }
 
   // 2. Check if user exists
@@ -44,11 +44,12 @@ const CourseEditPage = () => {
       setLoading(true);
       const response = await apiCall("GET", `/training/course/${courseId}`);
       if (!response || Object.keys(response).length === 0) {
-        redirect("/dashboardy");
+        redirect("/dashboard");
       }
       setCourse(response?.course);
     } catch (error) {
-      redirect("/dashboardz");
+      console.log(error);
+      //redirect("/dashboardz");
     } finally {
       setLoading(false);
     }
@@ -69,7 +70,7 @@ const CourseEditPage = () => {
 
   // Ensure course exists before rendering content
   if (!course) {
-    redirect("/dashboardv");
+    redirect("/dashboard");
   }
 
   return (
