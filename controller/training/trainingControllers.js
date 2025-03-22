@@ -676,19 +676,26 @@ const getSingleCourse = async (req, params) => {
   }
 
   try {
-    const course = await prisma.course.findUnique({
+    // const course = await prisma.course.findUnique({
+    //   where: { id, userId },
+    //   include: {
+    //     chapters: {
+    //       orderBy: {
+    //         position: "asc",
+    //       },
+    //     },
+    //     attachments: {
+    //       orderBy: {
+    //         createdAt: "desc",
+    //       },
+    //     },
+    //   },
+    // });
+    const course = await prisma.course.findFirst({
       where: { id, userId },
       include: {
-        chapters: {
-          orderBy: {
-            position: "asc",
-          },
-        },
-        attachments: {
-          orderBy: {
-            createdAt: "desc",
-          },
-        },
+        chapters: { orderBy: { position: "asc" } },
+        attachments: { orderBy: { createdAt: "desc" } },
       },
     });
 
