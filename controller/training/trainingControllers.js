@@ -666,7 +666,7 @@ const getAllCourses = async (req) => {
 const getSingleCourse = async (req, params) => {
   const { id } = await params;
 
-  //const userId = req.user.id;
+  const userId = req.user.id;
 
   if (!id) {
     return customMessage("course ID is required", {}, 400);
@@ -678,7 +678,7 @@ const getSingleCourse = async (req, params) => {
 
   try {
     const course = await prisma.course.findUnique({
-      where: { id },
+      where: { id, userId },
       include: {
         chapters: {
           orderBy: {
