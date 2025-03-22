@@ -1,8 +1,7 @@
+import { customMessage, ServerError } from "@/lib/utils/customMessage";
 import prisma from "@/lib/utils/dbConnect";
 import { isValidUUID } from "@/lib/utils/validateUUID";
 import sanitize from "sanitize-html";
-
-const { customMessage, ServerError } = require("@/lib/utils/customMessage");
 
 const createNewCourse = async (req) => {
   try {
