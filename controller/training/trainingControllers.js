@@ -665,15 +665,15 @@ const getAllCourses = async (req) => {
 const getSingleCourse = async (req, params) => {
   const { id } = await params;
 
-  const userId = req.user.id;
+  const userId = "ca16918d-14d3-4b07-8758-d2674eaab48a";
 
   if (!id) {
     return customMessage("course ID is required", {}, 400);
   }
 
-  if (!isValidUUID(id)) {
-    return customMessage("Invalid course ID", {}, 400);
-  }
+  // if (!isValidUUID(id)) {
+  //   return customMessage("Invalid course ID", {}, 400);
+  // }
 
   try {
     const course = await prisma.course.findUnique({
@@ -693,7 +693,12 @@ const getSingleCourse = async (req, params) => {
     });
 
     if (!course) {
-      return customMessage("Course not found", {}, 404);
+      return NextResponse.json(
+        {
+          message: "Course not found",
+        },
+        { status: 500 }
+      );
     }
 
     return customMessage("Course found", { course }, 200);
