@@ -665,26 +665,31 @@ const getAllCourses = async (req) => {
 const getSingleCourse = async (req, params) => {
   const { id } = await params;
 
-  const userId = "ca16918d-14d3-4b07-8758-d2674eaab48a";
+  const userId = req.user.id;
+
+  if (!id) {
+    return customMessage("course ID is required", {}, 400);
+  }
+
+  if (!isValidUUID(id)) {
+    return customMessage("Invalid course ID", {}, 400);
+  }
 
   try {
-    // const course = await prisma.course.findUnique({
-    //   where: { id, userId },
-    //   include: {
-    //     chapters: {
-    //       orderBy: {
-    //         position: "asc",
-    //       },
-    //     },
-    //     attachments: {
-    //       orderBy: {
-    //         createdAt: "desc",
-    //       },
-    //     },
-    //   },
-    // });
-    const course = await prisma.user.findUnique({
-      where: { id: userId },
+    const course = await prisma.course.findUnique({
+      where: { id, userId },
+      include: {
+        chapters: {
+          orderBy: {
+            position: "asc",
+          },
+        },
+        attachments: {
+          orderBy: {
+            createdAt: "desc",
+          },
+        },
+      },
     });
 
     if (!course) {
@@ -697,7 +702,7 @@ const getSingleCourse = async (req, params) => {
       {
         error,
       },
-      { status: 200 }
+      { status: 500 }
     );
   }
 };
