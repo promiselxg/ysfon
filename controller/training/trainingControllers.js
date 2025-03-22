@@ -665,7 +665,7 @@ const getAllCourses = async (req) => {
 const getSingleCourse = async (req, params) => {
   const { id } = await params;
 
-  const userId = req.user.id;
+  const userId = "ca16918d-14d3-4b07-8758-d2674eaab48a";
 
   if (!id) {
     return customMessage("course ID is required", {}, 400);
