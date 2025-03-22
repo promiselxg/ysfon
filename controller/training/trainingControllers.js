@@ -684,7 +684,7 @@ const getSingleCourse = async (req, params) => {
     //   },
     // });
     const course = await prisma.user.findUnique({
-      where: { userId },
+      where: { id: userId },
     });
 
     if (!course) {
