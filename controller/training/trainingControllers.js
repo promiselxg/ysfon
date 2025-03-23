@@ -586,7 +586,7 @@ const updateCourseChapter = async (req, params) => {
 const getAllCategories = async () => {
   try {
     const categories = await prisma.courseCategory.findMany({
-      orderBy: { createdAt: "desc" },
+      orderBy: { name: "asc" },
       select: { id: true, name: true, createdAt: true },
     });
     return customMessage(

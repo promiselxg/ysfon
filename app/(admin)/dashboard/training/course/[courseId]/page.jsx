@@ -1,5 +1,6 @@
 "use client";
 
+import CategoryForm from "@/app/(admin)/_components/training/category-form";
 import DescriptionForm from "@/app/(admin)/_components/training/description-form";
 import ImageFileUploadForm from "@/app/(admin)/_components/training/image-upload-form";
 import TitleForm from "@/app/(admin)/_components/training/title-form";
@@ -11,6 +12,7 @@ import React, { useEffect, useState } from "react";
 
 const CourseEditPage = () => {
   const [course, setCourse] = useState({});
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
   const params = useParams();
   const { user } = useAuthStore();
@@ -55,8 +57,20 @@ const CourseEditPage = () => {
     }
   };
 
+  const fetchCourseCategories = async () => {
+    try {
+      const response = await apiCall("GET", "/training/course/category");
+      if (response) {
+        setCategories(response.categories);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   useEffect(() => {
     fetchCourseInfo();
+    fetchCourseCategories();
   }, [courseId]);
 
   if (loading) {
@@ -81,14 +95,24 @@ const CourseEditPage = () => {
           </span>
         </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-5">
+      <div className="flex items-center gap-x-2 mt-3">
+        <h2 className="text-xl">Customize your course</h2>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <div className="flex items-center gap-x-2">
-            <h2 className="text-xl">Customize your course</h2>
-          </div>
           <TitleForm initialData={course} courseId={course.id} />
           <DescriptionForm initialData={course} courseId={course.id} />
           <ImageFileUploadForm initialData={course} courseId={course.id} />
+        </div>
+        <div>
+          <CategoryForm
+            initialData={course}
+            courseId={course.id}
+            options={categories.map((category) => ({
+              label: category.name,
+              value: category.id,
+            }))}
+          />
         </div>
       </div>
     </div>
