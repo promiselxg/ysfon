@@ -2,9 +2,7 @@ import { useImageContext } from "@/context/imageUpload.context";
 import React from "react";
 import { RenderImages } from "./selectedImageDisplay";
 import { Button } from "../ui/button";
-import { ImagePlusIcon, Loader2 } from "lucide-react";
-import { BiImageAdd } from "react-icons/bi";
-import Image from "next/image";
+import { ImageIcon, Loader2 } from "lucide-react";
 
 const FileUpload = ({ courseId }) => {
   const {
@@ -27,14 +25,13 @@ const FileUpload = ({ courseId }) => {
               htmlFor="files"
               className="w-full cursor-pointer flex justify-center flex-col items-center"
             >
-              <ImagePlusIcon
-                size={80}
+              <ImageIcon
+                size={40}
                 className="cursor-pointer text-[rgba(0,0,0,0.8)]"
               />
               <div className="my-2 flex flex-col justify-center items-center leading-tight text-center">
                 <p className="text-sm text-[rgba(0,0,0,0.8)]">
-                  Browse an image{" "}
-                  <span className="text-sm">(Supports: PNG, JPG)</span>
+                  Browse an image
                 </p>
               </div>
             </label>

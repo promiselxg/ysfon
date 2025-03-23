@@ -1,3 +1,4 @@
+import { removeUploadedImage } from "@/lib/utils/cloudinary";
 import { customMessage, ServerError } from "@/lib/utils/customMessage";
 import prisma from "@/lib/utils/dbConnect";
 import { isValidUUID } from "@/lib/utils/validateUUID";
@@ -203,12 +204,11 @@ const updateCourse = async (req, params) => {
     if (!isValidUUID(id)) {
       return customMessage("Invalid Course ID", {}, 400);
     }
+    const courseExist = await prisma.course.findUnique({
+      where: { id, userId: req.user.id },
+    });
 
-    if (
-      !(await prisma.course.findUnique({
-        where: { id, userId: req.user.id },
-      }))
-    ) {
+    if (!courseExist) {
       return customMessage("Unauthorized", {}, 401);
     }
 
@@ -242,15 +242,14 @@ const updateCourse = async (req, params) => {
       delete updates.categoryId;
     }
 
-    // Sanitize name and description if provided
     if (updates.title) {
       updates.title = sanitize(updates.title);
     }
     if (updates.description) {
       updates.description = sanitize(updates.description);
     }
-    // Handle images update (expects an array of image objects)
 
+    // Handle images update (expects an array of image objects)
     if (updates.photos) {
       if (!Array.isArray(updates.photos)) {
         return customMessage("Images must be an array of objects", {}, 400);
@@ -267,6 +266,14 @@ const updateCourse = async (req, params) => {
           400
         );
       }
+      // Delete old asset.
+      if (courseExist?.asset?.assetId) {
+        await removeUploadedImage(
+          [courseExist.asset],
+          courseExist.asset.resourceType
+        );
+      }
+
       updates.asset = {
         assetId: updates.photos[0].public_id,
         publicUrl: updates.photos[0].secure_url,

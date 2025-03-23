@@ -19,12 +19,10 @@ const CourseEditPage = () => {
 
   const { courseId } = params;
 
-  // 1. Check if courseId is valid
   if (!isValidUUID(courseId)) {
     redirect("/dashboard");
   }
 
-  // 2. Check if user exists
   if (!user) {
     redirect("/auth/login");
   }
@@ -34,6 +32,8 @@ const CourseEditPage = () => {
     course.description,
     course.asset,
     course.categoryId,
+    course.attachment,
+    course.price,
   ];
 
   const totalFields = requiredFields.length;
@@ -59,7 +59,6 @@ const CourseEditPage = () => {
     fetchCourseInfo();
   }, [courseId]);
 
-  // Show loading state while fetching
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
