@@ -20,6 +20,7 @@ import { apiCall } from "@/lib/utils/api";
 import { toast } from "sonner";
 import { useAuthStore } from "@/store/authStore";
 import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 
 const formSchema = z.object({
   description: z.string().min(2, {
@@ -84,8 +85,15 @@ const DescriptionForm = ({ initialData, courseId }) => {
           </Button>
         </div>
         {!isEditing && (
-          <p className="text-sm">
-            {course ? course.description : initialData.description}
+          <p
+            className={cn(
+              "text-sm mt-2",
+              !initialData.description && "text-slate-500 italic"
+            )}
+          >
+            {course
+              ? course.description
+              : initialData.description || "No description"}
           </p>
         )}
         {isEditing && (
@@ -102,13 +110,13 @@ const DescriptionForm = ({ initialData, courseId }) => {
                     <FormControl>
                       <Textarea
                         disabled={isSubmitting}
-                        placeholder="eg: 'Advanced web development"
+                        placeholder="eg: 'e.g this course is about..."
                         className="shadow bg-white"
                         {...field}
                       />
                     </FormControl>
                     <FormDescription className="text-sm ml-2 italic -mt-1">
-                      course description
+                      edit this course description
                     </FormDescription>
                     <FormMessage />
                   </FormItem>

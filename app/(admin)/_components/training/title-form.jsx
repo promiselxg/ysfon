@@ -20,6 +20,7 @@ import { useRouter } from "next/navigation";
 import { apiCall } from "@/lib/utils/api";
 import { toast } from "sonner";
 import { useAuthStore } from "@/store/authStore";
+import { cn } from "@/lib/utils";
 
 const formSchema = z.object({
   title: z.string().min(2, {
@@ -84,7 +85,14 @@ const TitleForm = ({ initialData, courseId }) => {
           </Button>
         </div>
         {!isEditing && (
-          <p className="text-sm">{course ? course.title : initialData.title}</p>
+          <p
+            className={cn(
+              "text-sm mt-2",
+              !initialData.title && "text-slate-500 italic"
+            )}
+          >
+            {course ? course.title : initialData.title}
+          </p>
         )}
         {isEditing && (
           <Form {...form}>
@@ -106,7 +114,7 @@ const TitleForm = ({ initialData, courseId }) => {
                       />
                     </FormControl>
                     <FormDescription className="text-sm ml-2 italic -mt-1">
-                      course title description
+                      edit course title.
                     </FormDescription>
                     <FormMessage />
                   </FormItem>

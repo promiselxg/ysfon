@@ -251,13 +251,13 @@ const updateCourse = async (req, params) => {
     }
     // Handle images update (expects an array of image objects)
 
-    if (updates.images) {
-      if (!Array.isArray(updates.images)) {
+    if (updates.photos) {
+      if (!Array.isArray(updates.photos)) {
         return customMessage("Images must be an array of objects", {}, 400);
       }
 
-      const validImages = updates.images.every(
-        (img) => img.publicId && img.public_url
+      const validImages = updates.photos.every(
+        (img) => img.public_id && img.secure_url
       );
 
       if (!validImages) {
@@ -267,6 +267,15 @@ const updateCourse = async (req, params) => {
           400
         );
       }
+      updates.asset = {
+        assetId: updates.photos[0].public_id,
+        publicUrl: updates.photos[0].secure_url,
+        publicId: updates.photos[0].public_id,
+        format: updates.photos[0].format,
+        resourceType: updates.photos[0].resource_type,
+        originalFilename: updates.photos[0].original_filename,
+      };
+      delete updates.photos;
     }
 
     await prisma.course.update({
@@ -276,7 +285,8 @@ const updateCourse = async (req, params) => {
 
     return customMessage("Course updated successfully", {}, 200);
   } catch (error) {
-    return customMessage("Something went wrong", { error: error.message }, 500);
+    console.log(error);
+    return ServerError(error, {}, 500);
   }
 };
 
@@ -642,7 +652,7 @@ const getAllCourses = async (req) => {
         description: true,
         price: true,
         createdAt: true,
-        imageUrl: true,
+        asset: true,
         isPublished: true,
         category: { select: { id: true, name: true } },
         chapters: true,

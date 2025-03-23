@@ -1,6 +1,7 @@
 "use client";
 
 import DescriptionForm from "@/app/(admin)/_components/training/description-form";
+import ImageFileUploadForm from "@/app/(admin)/_components/training/image-upload-form";
 import TitleForm from "@/app/(admin)/_components/training/title-form";
 import { apiCall } from "@/lib/utils/api";
 import { isValidUUID } from "@/lib/utils/validateUUID";
@@ -31,7 +32,7 @@ const CourseEditPage = () => {
   const requiredFields = [
     course.title,
     course.description,
-    course.imageUrl,
+    course.asset,
     course.categoryId,
   ];
 
@@ -48,8 +49,7 @@ const CourseEditPage = () => {
       }
       setCourse(response?.course);
     } catch (error) {
-      console.log(error);
-      //redirect("/dashboardz");
+      redirect("/dashboard");
     } finally {
       setLoading(false);
     }
@@ -68,13 +68,12 @@ const CourseEditPage = () => {
     );
   }
 
-  // Ensure course exists before rendering content
   if (!course) {
     redirect("/dashboard");
   }
 
   return (
-    <div className="p-6 bg-muted h-[calc(100vh-64px)]">
+    <div className="p-6">
       <div className="flex items-center justify-between">
         <div className="flex flex-col gap-y-2">
           <h1 className="text-2xl font-medium">Course setup</h1>
@@ -90,6 +89,7 @@ const CourseEditPage = () => {
           </div>
           <TitleForm initialData={course} courseId={course.id} />
           <DescriptionForm initialData={course} courseId={course.id} />
+          <ImageFileUploadForm initialData={course} courseId={course.id} />
         </div>
       </div>
     </div>
