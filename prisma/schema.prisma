@@ -199,8 +199,8 @@ model ProjectCategory {
 
 model Attachment {
   id        String   @id @default(uuid())
-  name      String
-  url       String  @db.Text
+  name      String   @db.Text
+  asset     Json?
   courseId  String
   course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())

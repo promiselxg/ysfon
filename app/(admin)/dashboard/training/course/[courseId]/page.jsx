@@ -1,5 +1,6 @@
 "use client";
 
+import AttachmentForm from "@/app/(admin)/_components/training/attachment-form";
 import CategoryForm from "@/app/(admin)/_components/training/category-form";
 import DescriptionForm from "@/app/(admin)/_components/training/description-form";
 import ImageFileUploadForm from "@/app/(admin)/_components/training/image-upload-form";
@@ -34,8 +35,6 @@ const CourseEditPage = () => {
     course.description,
     course.asset,
     course.categoryId,
-    course.attachment,
-    course.price,
   ];
 
   const totalFields = requiredFields.length;
@@ -113,6 +112,7 @@ const CourseEditPage = () => {
               value: category.id,
             }))}
           />
+          <AttachmentForm initialData={course} courseId={course.id} />
         </div>
       </div>
     </div>

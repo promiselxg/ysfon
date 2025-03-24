@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAuthStore } from "@/store/authStore";
 import { useRouter } from "next/navigation";
 import {
@@ -36,6 +36,8 @@ const formSchema = z.object({
 
 export function LoginForm() {
   const { user, login, loading, error } = useAuthStore();
+  const [redirectUrl, setRedirectUrl] = useState("/dashboard");
+
   const router = useRouter();
 
   const form = useForm({
@@ -60,9 +62,21 @@ export function LoginForm() {
 
   useEffect(() => {
     if (user) {
-      router.replace("/dashboard");
+      router.replace(redirectUrl);
     }
   }, [user, router]);
+
+  useEffect(() => {
+    // Get redirect URL from cookies
+    const storedRedirect = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("redirectUrl="))
+      ?.split("=")[1];
+
+    if (storedRedirect) {
+      setRedirectUrl(decodeURIComponent(storedRedirect));
+    }
+  }, []);
 
   return (
     <div className={cn("flex flex-col gap-6")}>
