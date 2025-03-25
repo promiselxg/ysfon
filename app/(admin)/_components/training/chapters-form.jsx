@@ -21,6 +21,7 @@ import { useAuthStore } from "@/store/authStore";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import ChapterList from "./chapter-list";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   title: z.string().min(1),
@@ -30,7 +31,8 @@ const ChaptersForm = ({ initialData, courseId }) => {
   const { user } = useAuthStore();
   const [isUpdating, setIsUpdating] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
-  const [chapters, setChapters] = useState(initialData?.chapters || []); // ✅ Local state for chapters
+  const [chapters, setChapters] = useState(initialData?.chapters || []);
+  const router = useRouter();
 
   const toggleCreating = () => setIsCreating((current) => !current);
 
@@ -53,7 +55,7 @@ const ChaptersForm = ({ initialData, courseId }) => {
       );
       if (response) {
         toast.success(`${response.message}`);
-        setChapters([...chapters, { title: values.title }]); // ✅ Update state
+        setChapters([...chapters, { title: values.title }]);
         toggleCreating();
       }
     } catch (error) {
@@ -75,11 +77,14 @@ const ChaptersForm = ({ initialData, courseId }) => {
       );
       toast.success(`${response.message}`);
     } catch (error) {
-      console.log(error);
       toast.error(`${error?.message}` || "Something went wrong");
     } finally {
       setIsUpdating(false);
     }
+  };
+
+  const onEdit = async (chapterId) => {
+    router.push(`/dashboard/training/course/${courseId}/chapter/${chapterId}`);
   };
 
   return (
@@ -155,7 +160,7 @@ const ChaptersForm = ({ initialData, courseId }) => {
         >
           {!chapters.length && "No chapters added yet"}
           <ChapterList
-            onEdit={() => {}}
+            onEdit={onEdit}
             onReorder={onReorder}
             items={initialData?.chapters || []}
           />

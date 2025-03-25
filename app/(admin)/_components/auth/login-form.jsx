@@ -120,7 +120,7 @@ export function LoginForm() {
                         <div className="flex items-center">
                           <FormLabel>Password</FormLabel>
                           <Link
-                            href="/auth/forget-password"
+                            href="/"
                             className="ml-auto text-sm underline-offset-2 hover:underline"
                           >
                             Forgot your password?
