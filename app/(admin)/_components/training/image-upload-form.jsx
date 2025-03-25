@@ -54,10 +54,10 @@ const ImageFileUploadForm = ({ initialData, courseId }) => {
                 : initialData.asset.publicUrl
             }
             alt="uploaded image"
-            width={550}
-            height={300}
-            className={`object-cover ${
-              uploadedFile.length > 0 ? "h-[300px]" : "h-[110px]"
+            width={100}
+            height={110}
+            className={`object-contain w-full ${
+              uploadedFile.length > 0 ? "h-[110px]" : "h-[110px]"
             } border-[2px] border-[--primary-btn] p-[2px] rounded-[5px] cursor-pointer`}
           />
         )}

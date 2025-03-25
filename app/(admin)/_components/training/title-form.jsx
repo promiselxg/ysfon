@@ -78,7 +78,7 @@ const TitleForm = ({ initialData, courseId }) => {
               <>Cancel</>
             ) : (
               <>
-                <Pencil className="h-4 w-4 mr-2 cursor-pointer" />
+                <Pencil className="h-4 w-4 cursor-pointer" />
                 Edit title
               </>
             )}

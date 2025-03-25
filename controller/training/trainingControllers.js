@@ -583,6 +583,45 @@ const updateCourseChapter = async (req, params) => {
   }
 };
 
+const reorderCourceChapter = async (req, params) => {
+  try {
+    const { id: courseId } = await params;
+
+    const userId = req.user.id;
+    const { list } = await req.json();
+
+    if (!courseId) {
+      return customMessage("Course ID is required", {}, 400);
+    }
+
+    if (!isValidUUID(courseId)) {
+      return customMessage("Invalid course ID", {}, 400);
+    }
+
+    const courseOwner = await prisma.course.findUnique({
+      where: {
+        id: courseId,
+        userId,
+      },
+    });
+
+    if (!courseOwner) {
+      return customMessage("Unauthorized", {}, 401);
+    }
+
+    for (let item of list) {
+      await prisma.chapter.update({
+        where: { id: item.id },
+        data: { position: item.position },
+      });
+    }
+    return customMessage("Chapters reordered successfully", {}, 200);
+  } catch (error) {
+    console.log(error);
+    return ServerError(error, {}, 500);
+  }
+};
+
 const getAllCategories = async () => {
   try {
     const categories = await prisma.courseCategory.findMany({
@@ -860,6 +899,7 @@ export const trainingControllers = {
   createCourseChapter,
   updateCategory,
   updateCourse,
+  reorderCourceChapter,
   publishCourse,
   unpublishCourse,
   publishCourseChapter,

@@ -52,6 +52,28 @@ const AttachmentForm = ({ initialData, courseId }) => {
             No attachments yet
           </p>
         )}
+        {!isEditing && initialData?.attachments?.length > 0 && (
+          <div className="mt-4">
+            {initialData.attachments.map((attachment) => (
+              <div
+                key={attachment.id}
+                className="flex items-center gap-x-2 w-full justify-between"
+              >
+                <a
+                  href={attachment.asset.publicUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-blue-500 underline"
+                >
+                  {attachment.name}
+                </a>
+                <Button variant="ghost" className="text-red-500 cursor-pointer">
+                  Delete
+                </Button>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </>
   );

@@ -2,6 +2,7 @@
 
 import AttachmentForm from "@/app/(admin)/_components/training/attachment-form";
 import CategoryForm from "@/app/(admin)/_components/training/category-form";
+import ChaptersForm from "@/app/(admin)/_components/training/chapters-form";
 import DescriptionForm from "@/app/(admin)/_components/training/description-form";
 import ImageFileUploadForm from "@/app/(admin)/_components/training/image-upload-form";
 import TitleForm from "@/app/(admin)/_components/training/title-form";
@@ -35,10 +36,11 @@ const CourseEditPage = () => {
     course.description,
     course.asset,
     course.categoryId,
+    course.chapters?.some((chapter) => chapter?.isPublished),
   ];
 
-  const totalFields = requiredFields.length;
-  const completedFields = requiredFields.filter(Boolean).length;
+  const totalFields = requiredFields?.length;
+  const completedFields = requiredFields.filter(Boolean)?.length;
   const completedText = `(${completedFields}/${totalFields})`;
 
   const fetchCourseInfo = async () => {
@@ -101,9 +103,6 @@ const CourseEditPage = () => {
         <div>
           <TitleForm initialData={course} courseId={course.id} />
           <DescriptionForm initialData={course} courseId={course.id} />
-          <ImageFileUploadForm initialData={course} courseId={course.id} />
-        </div>
-        <div>
           <CategoryForm
             initialData={course}
             courseId={course.id}
@@ -112,6 +111,11 @@ const CourseEditPage = () => {
               value: category.id,
             }))}
           />
+          <ImageFileUploadForm initialData={course} courseId={course.id} />
+        </div>
+        <div>
+          <ChaptersForm initialData={course} courseId={course.id} />
+
           <AttachmentForm initialData={course} courseId={course.id} />
         </div>
       </div>

@@ -86,8 +86,8 @@ const CategoryForm = ({ initialData, courseId, options }) => {
             <>Cancel</>
           ) : (
             <>
-              <Pencil className="h-4 w-4 mr-2 cursor-pointer" />
-              Edit category
+              <Pencil className="h-4 w-4 cursor-pointer" />
+              Edit
             </>
           )}
         </Button>
